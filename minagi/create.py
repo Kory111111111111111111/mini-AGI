@@ -82,7 +82,8 @@ def create(out, seed=0, verbose=True, force=False, **over):
     m = RecurCoder(cfg)
     d = asdict(cfg)
     d["pool_resident"] = resident
-    store.save(m, out, step=-1, val=None, opt=None, cfg=d, verbose=verbose)
+    store.save(m, out, step=-1, val=None, opt=None, cfg=d, verbose=verbose,
+               extra={"paged": True})
 
     if verbose:
         per = depth * 3 * d_model * d_ff

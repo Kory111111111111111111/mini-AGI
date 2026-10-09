@@ -1349,7 +1349,7 @@ def cmd_read(args):
             print(f"  reading this cost ground on the held-out set - that is "
                   f"what forgetting looks like, measured rather than assumed")
 
-    if args.sample_every:
+    if args.sample_every or args.save:
         variants = _sample_variants(args)
         t_w = time.time()
         s = sample_now(model, tok, device, args.sample_chars,
@@ -1658,9 +1658,14 @@ def refresh_plots():
         cmds.append(c)
     try:
         script = " && ".join(" ".join(f'"{x}"' for x in c) for c in cmds)
-        _PLOTS["proc"] = subprocess.Popen(
-            ["bash", "-c", script], cwd=here,
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if sys.platform == "win32":
+            _PLOTS["proc"] = subprocess.Popen(
+                script, cwd=here, shell=True,
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        else:
+            _PLOTS["proc"] = subprocess.Popen(
+                ["bash", "-c", script], cwd=here,
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except OSError:
         _PLOTS["on"] = False            # no python, no bash - stop trying
 

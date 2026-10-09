@@ -139,13 +139,14 @@ class Tiers:
         file the whole of what that expert is, which is what the weights
         directory claims about itself.
         """
-        z = np.load(self._file(i))
-        out = {k: torch.from_numpy(z[k]).clone() for k in ("w1", "w3", "w2")}
-        for k in ("w1_m", "w3_m", "w2_m", "w1_v", "w3_v", "w2_v"):
-            if k in z.files:
-                # bf16 if this file has been written since the moments were
-                # narrowed, fp32 if it has not; unpack_bf16 reads both
-                out[k] = unpack_bf16(z[k]).clone()
+        with np.load(self._file(i)) as z:
+            out = {k: torch.from_numpy(z[k]).clone() for k in ("w1", "w3", "w2")}
+            if not self.read_only:
+                for k in ("w1_m", "w3_m", "w2_m", "w1_v", "w3_v", "w2_v"):
+                    if k in z.files:
+                        # bf16 if this file has been written since the moments were
+                        # narrowed, fp32 if it has not; unpack_bf16 reads both
+                        out[k] = unpack_bf16(z[k]).clone()
         return out
 
     def fetch(self, i, count=True):

@@ -1,0 +1,6 @@
+<user>
+I've been feeling a bit jaded lately. Everything seems routine. How do you stay curious about the world?
+</user>
+<bot>
+<think>
+The user is expressing a sense of ennui and asking for a way to rekindle curiosity. I should acknowledge their feeling first

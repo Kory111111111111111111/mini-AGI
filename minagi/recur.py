@@ -413,7 +413,7 @@ class RecurCoder(nn.Module):
         return (out, steps_log) if collect else out
 
 
-def load_recur(path, device, read_only=False):
+def load_recur(path, device, read_only=False, resident=None):
     """
     Load a model from the weights directory, or from a .pt checkpoint.
 
@@ -423,7 +423,7 @@ def load_recur(path, device, read_only=False):
     """
     import os
     if os.path.isdir(path) and os.path.exists(os.path.join(path, "manifest.json")):
-        return _load_dir(path, device, read_only=read_only)
+        return _load_dir(path, device, read_only=read_only, resident=resident)
     ck = torch.load(path, map_location=device, weights_only=False)
     cfg = RecurConfig(**ck["cfg"])
     m = RecurCoder(cfg).to(device)
@@ -456,7 +456,7 @@ def load_recur(path, device, read_only=False):
 
 
 
-def load_any(ckpt_path, device, read_only=True):
+def load_any(ckpt_path, device, read_only=True, resident=None):
     """
     Load whatever is at this path: a weights DIRECTORY or an older .pt file.
 
@@ -468,10 +468,10 @@ def load_any(ckpt_path, device, read_only=True):
     """
     import os
     if os.path.isdir(ckpt_path):
-        return load_recur(ckpt_path, device, read_only=read_only)
+        return load_recur(ckpt_path, device, read_only=read_only, resident=resident)
     head = torch.load(ckpt_path, map_location="cpu", weights_only=False)
     if head.get("arch") == "recur":
-        return load_recur(ckpt_path, device)
+        return load_recur(ckpt_path, device, resident=resident)
     return load_model(ckpt_path, device)
 
 def load_model(ckpt_path, device):
@@ -484,7 +484,7 @@ def load_model(ckpt_path, device):
     return load_recur(ckpt_path, device)
 
 
-def _load_dir(path, device, paged=None, read_only=False):
+def _load_dir(path, device, paged=None, read_only=False, resident=None):
     """
     Rebuild a model from a weights directory.
 
@@ -512,6 +512,7 @@ def _load_dir(path, device, paged=None, read_only=False):
             sys.path.insert(0, _root)
         import train as _train
         m, cfg, pool, man2 = _train.build_paged(path, device,
+                                                resident=resident,
                                                 read_only=read_only)
         return m, {"cfg": cfg.__dict__, "step": man2.get("step"),
                    "val": man2.get("val")}

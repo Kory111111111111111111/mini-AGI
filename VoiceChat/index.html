@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sesame Voice Arena | Multi-Agent Conversational Studio</title>
+  <meta name="description" content="Next-generation voice-to-voice conversational studio and multi-agent debate arena with fluid audio-reactive visualizer.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+  <div class="background-glow ambient-glow-1"></div>
+  <div class="background-glow ambient-glow-2"></div>
+
+  <div class="app-layout">
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-badge">VOICE CORE</div>
+        <h1>Sesame <span>Arena</span></h1>
+      </div>
+
+      <!-- Mode Switcher -->
+      <div class="mode-selector">
+        <button id="btn-mode-debate" class="mode-btn active" data-mode="debate">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Agent Debate Arena
+        </button>
+        <button id="btn-mode-direct" class="mode-btn" data-mode="direct">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          Direct Voice Chat
+        </button>
+      </div>
+
+      <!-- System Status Indicators -->
+      <div class="header-actions">
+        <div class="status-chip" id="connection-status">
+          <span class="pulse-dot active"></span>
+          <span class="status-label">Engine Ready</span>
+        </div>
+        <button id="btn-toggle-settings" class="icon-btn" title="Engine Settings">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="arena-grid">
+      <!-- Left Agent Panel (Agent A) -->
+      <section class="agent-panel" id="panel-agent-a">
+        <div class="agent-card">
+          <div class="agent-card-header">
+            <div class="agent-badge a-badge">AGENT A</div>
+            <div class="speaking-indicator" id="indicator-agent-a">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="agent-a-name">Name & Persona</label>
+            <input type="text" id="agent-a-name" value="Maya (Optimist)" placeholder="Agent Name">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="agent-a-voice-model">Voice-to-Voice Engine</label>
+              <select id="agent-a-voice-model" class="model-select">
+                <optgroup label="Native Speech-to-Speech">
+                  <option value="sesame-csm-1b" selected>Sesame CSM-1B (Maya/Miles)</option>
+                  <option value="kyutai-moshi">Kyutai Moshi (7B Full-Duplex)</option>
+                  <option value="mini-omni-2">Mini-Omni 2 (Realtime Audio)</option>
+                </optgroup>
+                <optgroup label="Ultra-Fast Neural TTS">
+                  <option value="kokoro-82m">Kokoro-82M (Sub-30ms Studio)</option>
+                  <option value="fish-speech">Fish Speech v1.5</option>
+                  <option value="web-speech">Browser Native (Low Latency)</option>
+                </optgroup>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="agent-a-brain-model">Reasoning Core</label>
+              <select id="agent-a-brain-model" class="model-select">
+                <option value="mini-agi" selected>mini-AGI (Continual MoE)</option>
+                <option value="deepseek-r1">DeepSeek-R1 (Reasoning)</option>
+                <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                <option value="llama-3.2-3b">Llama 3.2 3B</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="agent-a-tone">Voice Pitch & Tone</label>
+              <select id="agent-a-tone">
+                <option value="warm">Warm & Expressive</option>
+                <option value="analytical">Analytical & Direct</option>
+                <option value="energetic">Energetic & Bright</option>
+                <option value="deep">Deep & Grounded</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="agent-a-stance">Debate Stance / System Prompt</label>
+            <textarea id="agent-a-stance" rows="3" placeholder="Define Agent A's perspective and debate role...">Advocate passionately for high-level creative autonomy, emergent neural audio synthesis, and the paradigm shift where AI writes audio DSP natively.</textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- Center Stage: The Sesame Fluid Audio-Reactive Orb -->
+      <section class="orb-stage">
+        <!-- Live State Display -->
+        <div class="orb-status-display">
+          <div class="current-speaker-tag" id="stage-speaker-tag">IDLE / READY</div>
+          <div class="subtext-status" id="stage-subtext">Click Start Debate or speak through mic</div>
+        </div>
+
+        <!-- Canvas Container -->
+        <div class="canvas-wrapper">
+          <canvas id="voice-orb-canvas" width="600" height="600"></canvas>
+          <div class="orb-aura"></div>
+        </div>
+
+        <!-- Central Debate & Audio Controls -->
+        <div class="central-controls">
+          <div class="debate-setup-bar" id="debate-topic-bar">
+            <input type="text" id="debate-topic" placeholder="Enter Debate Topic..." value="Should AI write all music DSP code or keep human engineers at the core?">
+          </div>
+
+          <div class="action-buttons">
+            <button id="btn-start-debate" class="primary-btn glow-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <span>Start Debate</span>
+            </button>
+            <button id="btn-pause-debate" class="secondary-btn" disabled>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+              <span>Pause</span>
+            </button>
+            <button id="btn-hold-to-talk" class="mic-btn" title="Hold to Talk / Barge-in as Director">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+              <span>Hold to Speak</span>
+            </button>
+          </div>
+
+          <!-- Quick Director Interjection Bar -->
+          <div class="director-input-row">
+            <input type="text" id="director-prompt" placeholder="Interject as Director/Moderator (Press Enter)...">
+            <button id="btn-director-send" class="icon-btn-accent" title="Send Interjection">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Agent Panel (Agent B) -->
+      <section class="agent-panel" id="panel-agent-b">
+        <div class="agent-card">
+          <div class="agent-card-header">
+            <div class="agent-badge b-badge">AGENT B</div>
+            <div class="speaking-indicator" id="indicator-agent-b">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="agent-b-name">Name & Persona</label>
+            <input type="text" id="agent-b-name" value="Miles (Pragmatist)" placeholder="Agent Name">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="agent-b-voice-model">Voice-to-Voice Engine</label>
+              <select id="agent-b-voice-model" class="model-select">
+                <optgroup label="Native Speech-to-Speech">
+                  <option value="sesame-csm-1b" selected>Sesame CSM-1B (Maya/Miles)</option>
+                  <option value="kyutai-moshi">Kyutai Moshi (7B Full-Duplex)</option>
+                  <option value="mini-omni-2">Mini-Omni 2 (Realtime Audio)</option>
+                </optgroup>
+                <optgroup label="Ultra-Fast Neural TTS">
+                  <option value="kokoro-82m">Kokoro-82M (Sub-30ms Studio)</option>
+                  <option value="fish-speech">Fish Speech v1.5</option>
+                  <option value="web-speech">Browser Native (Low Latency)</option>
+                </optgroup>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="agent-b-brain-model">Reasoning Core</label>
+              <select id="agent-b-brain-model" class="model-select">
+                <option value="mini-agi" selected>mini-AGI (Continual MoE)</option>
+                <option value="deepseek-r1">DeepSeek-R1 (Reasoning)</option>
+                <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                <option value="llama-3.2-3b">Llama 3.2 3B</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="agent-b-tone">Voice Pitch & Tone</label>
+              <select id="agent-b-tone">
+                <option value="deep" selected>Deep & Grounded</option>
+                <option value="analytical">Analytical & Sharp</option>
+                <option value="warm">Warm & Expressive</option>
+                <option value="skeptical">Skeptical & Inquisitive</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="agent-b-stance">Debate Stance / System Prompt</label>
+            <textarea id="agent-b-stance" rows="3" placeholder="Define Agent B's perspective and debate role...">Defend precision engineering, zero-latency C++ / JUCE memory safety, and human artistry. Critique AI hallucinations in real-time audio threads.</textarea>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom Collapsible Real-Time Transcript & Audio Timeline -->
+    <footer class="transcript-drawer" id="transcript-drawer">
+      <div class="drawer-header">
+        <div class="drawer-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Live Speech Transcript & Audio Log
+        </div>
+        <div class="drawer-actions">
+          <button id="btn-clear-transcript" class="small-btn">Clear</button>
+          <button id="btn-export-transcript" class="small-btn">Export Log</button>
+          <button id="btn-toggle-drawer" class="small-icon-btn" title="Toggle Drawer">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="drawer-body" id="transcript-feed">
+        <div class="empty-state-hint">The conversation will appear here in real-time as agents or you speak.</div>
+      </div>
+    </footer>
+
+    <!-- Settings Modal -->
+    <div class="modal-backdrop" id="settings-modal" style="display: none;">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>Voice & Streaming Engine Settings</h3>
+          <button id="btn-close-settings" class="close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="cfg-csm-url">Remote CSM / Moshi Server Endpoint (RunPod / Local)</label>
+            <input type="text" id="cfg-csm-url" value="http://127.0.0.1:8765" placeholder="e.g. https://4umq0z7gnj506m-8765.proxy.runpod.net">
+            <p class="field-hint">Points to your Python CSM-1B or csm.rs server running on GPU.</p>
+          </div>
+          <div class="form-group">
+            <label for="cfg-mini-agi-url">mini-AGI Endpoint (Local or RunPod)</label>
+            <input type="text" id="cfg-mini-agi-url" value="http://127.0.0.1:8080" placeholder="e.g. http://127.0.0.1:8080 or A40 pod IP">
+            <p class="field-hint">Self-hosted continual MoE (no API keys required).</p>
+          </div>
+          <div class="form-group">
+            <label for="cfg-deepseek-key">DeepSeek API Key (Optional)</label>
+            <input type="password" id="cfg-deepseek-key" placeholder="sk-..." autocomplete="off">
+          </div>
+          <div class="form-group">
+            <label for="cfg-gemini-key">Gemini / OpenRouter API Key (Optional)</label>
+            <input type="password" id="cfg-gemini-key" placeholder="AIza... or sk-or-..." autocomplete="off">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cfg-turn-delay">Turn Gap Delay (seconds)</label>
+              <input type="number" id="cfg-turn-delay" value="1.2" step="0.1" min="0.2" max="5.0">
+            </div>
+            <div class="form-group">
+              <label for="cfg-max-turns">Max Debate Turns</label>
+              <input type="number" id="cfg-max-turns" value="10" min="1" max="50">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="cfg-auto-play" checked>
+              <span>Enable instant audio playback streaming</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="audio.js"></script>
+  <script src="orb.js"></script>
+  <script src="debate.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

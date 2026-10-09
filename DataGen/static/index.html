@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>mini-AGI · DataGen Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- MINIMAL HEADER -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="logo-mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+          <polyline points="2 17 12 22 22 17"/>
+          <polyline points="2 12 12 17 22 12"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">mini-AGI</span>
+        <span class="brand-sep">/</span>
+        <span class="brand-app">DataGen</span>
+      </div>
+    </div>
+
+    <div class="header-center">
+      <div class="mode-switcher">
+        <button class="mode-btn active" id="btn-mode-studio">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          <span>Dataset Studio</span>
+        </button>
+        <button class="mode-btn" id="btn-mode-arena">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+          <span>Teacher Arena ⇄ mini-AGI</span>
+        </button>
+      </div>
+      <div class="provider-pill" id="providers-pill">
+        <span class="pulse-dot"></span>
+        <span id="providers-status-text">Loading API Providers...</span>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <a href="http://127.0.0.1:8080" target="_blank" class="top-nav-link" title="Open mini-AGI Chat">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span>Live Chat (8080)</span>
+      </a>
+      <button class="btn-top-save" id="btn-quick-export" title="Quick Save to Training">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        <span>Save Doc</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN STUDIO LAYOUT: 2-COLUMN MINIMAL -->
+  <main class="studio-layout">
+    <!-- LEFT CONFIG SIDEBAR -->
+    <aside class="sidebar-config">
+      <div class="sidebar-content">
+        
+        <!-- ==================== 1. DATASET STUDIO SIDEBAR ==================== -->
+        <div id="sidebar-studio-view" class="sidebar-mode-view active">
+        <!-- PROVIDER SEGMENTED TABS -->
+        <div class="sidebar-block">
+          <label class="block-label">Provider</label>
+          <div class="provider-tabs">
+            <button class="prov-tab active" data-provider="deepseek" id="tab-prov-deepseek">
+              <span class="prov-tab-name">DeepSeek</span>
+              <span class="prov-tab-dot"></span>
+            </button>
+            <button class="prov-tab" data-provider="gemini" id="tab-prov-gemini">
+              <span class="prov-tab-name">Gemini</span>
+              <span class="prov-tab-dot"></span>
+            </button>
+            <button class="prov-tab" data-provider="openrouter" id="tab-prov-openrouter">
+              <span class="prov-tab-name">OpenRouter</span>
+              <span class="prov-tab-dot"></span>
+            </button>
+            <button class="prov-tab" data-provider="glm" id="tab-prov-glm">
+              <span class="prov-tab-name">GLM-5</span>
+              <span class="prov-tab-dot"></span>
+            </button>
+          </div>
+        </div>
+
+        <!-- MODEL SELECTION / TYPE-IN -->
+        <div class="sidebar-block" id="model-section">
+          <div class="block-label-row">
+            <label class="block-label" for="select-model" id="lbl-model">Model</label>
+            <span class="model-badge" id="model-cap-tag">Supports &lt;think&gt;</span>
+          </div>
+
+          <!-- 1. OpenRouter Direct Type-in Input -->
+          <div id="box-openrouter-input" class="model-input-box" style="display: none;">
+            <div class="input-with-clear">
+              <input type="text" id="input-openrouter-model" class="minimal-input mono-font" 
+                     placeholder="Type model (e.g. anthropic/claude-3.7-sonnet)" 
+                     list="datalist-openrouter-models" autocomplete="off" spellcheck="false">
+              <datalist id="datalist-openrouter-models"></datalist>
+            </div>
+            <!-- Popular OpenRouter Quick Chips -->
+            <div class="quick-chips" id="openrouter-quick-chips">
+              <span class="chip" data-model="anthropic/claude-3.7-sonnet">Claude 3.7</span>
+              <span class="chip" data-model="anthropic/claude-3.7-sonnet:thinking">Claude 3.7 ⚡</span>
+              <span class="chip" data-model="deepseek/deepseek-r1-0528">R1 (0528)</span>
+              <span class="chip" data-model="openai/o3-mini">o3-mini</span>
+              <span class="chip" data-model="openai/gpt-4o">GPT-4o</span>
+              <span class="chip" data-model="qwen/qwq-32b">QwQ 32B</span>
+              <span class="chip" data-model="meta-llama/llama-3.3-70b-instruct">Llama 3.3</span>
+            </div>
+          </div>
+
+          <!-- 2. Standard Dropdown for DeepSeek, Gemini, GLM-5 -->
+          <div id="box-standard-dropdown" class="model-input-box">
+            <select id="select-model" class="minimal-select">
+              <!-- Dynamically populated with researched 2026 flagships -->
+            </select>
+          </div>
+
+          <!-- Custom Model Override Link -->
+          <div class="custom-override-row">
+            <span id="btn-toggle-custom-model" class="link-action">Type custom model ID</span>
+          </div>
+
+          <!-- Custom Override Field (hidden by default) -->
+          <div id="box-custom-override" style="display: none; margin-top: 6px;">
+            <input type="text" id="input-custom-model-id" class="minimal-input mono-font" 
+                   placeholder="Enter any custom model identifier..." autocomplete="off">
+          </div>
+        </div>
+
+        <!-- PER-MODEL REASONING & THINKING EFFORT -->
+        <div class="sidebar-block" id="reasoning-effort-block">
+          <div class="block-label-row">
+            <label class="block-label">Thinking Effort</label>
+            <span class="model-badge" id="thinking-mode-label">High Effort</span>
+          </div>
+          <div class="level-tabs" id="level-tabs">
+            <button class="level-btn" data-level="off">Off</button>
+            <button class="level-btn" data-level="low">Low</button>
+            <button class="level-btn" data-level="medium">Medium</button>
+            <button class="level-btn active" data-level="high">High</button>
+            <button class="level-btn" data-level="max">Max</button>
+          </div>
+          <span class="sub-hint" id="thinking-hint-text">Deep internal reasoning before every response</span>
+        </div>
+
+        <!-- SEARCH TOGGLE -->
+        <div class="sidebar-block compact-toggles">
+          <label class="minimal-toggle-row" id="row-serper">
+            <div class="toggle-text">
+              <span class="toggle-title">Serper Web Grounding</span>
+              <span class="toggle-sub">Inject live factual search results</span>
+            </div>
+            <input type="checkbox" id="toggle-search" class="clean-switch">
+          </label>
+        </div>
+
+        <!-- TOPIC DOMAIN PRESETS -->
+        <div class="sidebar-block">
+          <label class="block-label">Topic Domain</label>
+          <div class="preset-pill-grid">
+            <button class="preset-pill active" data-preset="chat">
+              <span class="p-icon">💬</span> Natural Human Dialogue
+            </button>
+            <button class="preset-pill" data-preset="audio">
+              <span class="p-icon">🎛️</span> Audio DSP & Plugins
+            </button>
+            <button class="preset-pill" data-preset="creative">
+              <span class="p-icon">🌲</span> Philosophy & Consciousness
+            </button>
+            <button class="preset-pill" data-preset="self">
+              <span class="p-icon">🤖</span> mini-AGI Architecture & Pool
+            </button>
+            <button class="preset-pill" data-preset="freeform">
+              <span class="p-icon">⚡</span> Freeform Custom Prompt
+            </button>
+          </div>
+        </div>
+
+        <!-- COLLAPSIBLE ADVANCED PARAMETERS -->
+        <details class="advanced-accordion">
+          <summary class="advanced-summary">
+            <span>Advanced Controls</span>
+            <span class="summary-arrow">›</span>
+          </summary>
+          <div class="advanced-body">
+            <div class="param-row">
+              <label for="range-temp">Creativity (Temp): <b id="val-temp">0.7</b></label>
+              <input type="range" id="range-temp" min="0.1" max="1.3" step="0.05" value="0.7">
+            </div>
+            <div class="param-row">
+              <label for="range-tokens">Max Tokens: <b id="val-tokens">3,500</b></label>
+              <input type="range" id="range-tokens" min="800" max="8000" step="200" value="3500">
+            </div>
+            <div class="param-row">
+              <label for="range-batch">Batch Count: <b id="val-batch">1</b></label>
+              <input type="range" id="range-batch" min="1" max="5" step="1" value="1">
+            </div>
+            <div class="param-row system-prompt-group">
+              <label for="system-prompt-text">System Prompt Directive</label>
+              <textarea id="system-prompt-text" rows="5" class="minimal-textarea"></textarea>
+            </div>
+          </div>
+        </details>
+
+        <!-- SAVE DESTINATIONS & ARCHIVE -->
+        <div class="sidebar-block export-block">
+          <label class="block-label">Direct Dataset Sync</label>
+          <input type="text" id="doc-title" class="minimal-input" placeholder="Document title (e.g. dialogue_sample)">
+          
+          <div class="sync-destinations">
+            <label class="mini-checkbox">
+              <input type="checkbox" id="dest-custom" checked>
+              <span>data/train/Custom</span>
+            </label>
+            <label class="mini-checkbox">
+              <input type="checkbox" id="dest-conv" checked>
+              <span>data/train/conversation</span>
+            </label>
+            <label class="mini-checkbox">
+              <input type="checkbox" id="dest-exports" checked>
+              <span>DataGen/exports</span>
+            </label>
+          </div>
+
+          <button class="btn-sync-save" id="btn-save-doc">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            <span>Save to Datasets</span>
+          </button>
+        </div>
+
+        </div> <!-- end #sidebar-studio-view -->
+
+        <!-- ==================== 2. SPARRING ARENA SIDEBAR ==================== -->
+        <div id="sidebar-arena-view" class="sidebar-mode-view" style="display: none;">
+          <!-- TEACHER PROVIDER SELECTOR -->
+          <div class="sidebar-block">
+            <div class="block-label-row">
+              <label class="block-label">Teacher Model</label>
+              <span class="model-badge" id="arena-teacher-badge">DeepSeek-V4.1-Flash</span>
+            </div>
+            <div class="provider-tabs">
+              <button class="prov-tab active" data-provider="deepseek" id="tab-arena-deepseek">
+                <span class="prov-tab-name">DeepSeek</span>
+              </button>
+              <button class="prov-tab" data-provider="gemini" id="tab-arena-gemini">
+                <span class="prov-tab-name">Gemini</span>
+              </button>
+              <button class="prov-tab" data-provider="openrouter" id="tab-arena-openrouter">
+                <span class="prov-tab-name">OpenRouter</span>
+              </button>
+              <button class="prov-tab" data-provider="glm" id="tab-arena-glm">
+                <span class="prov-tab-name">GLM-5</span>
+              </button>
+            </div>
+            
+            <div id="box-arena-model-select" style="margin-top: 8px;">
+              <select id="select-arena-model" class="minimal-select"></select>
+            </div>
+            <div id="box-arena-openrouter-input" style="display: none; margin-top: 8px;">
+              <input type="text" id="input-arena-openrouter-model" class="minimal-input mono-font" 
+                     placeholder="Type OpenRouter model (e.g. anthropic/claude-3.7-sonnet)" 
+                     list="datalist-openrouter-models" autocomplete="off" spellcheck="false">
+            </div>
+          </div>
+
+          <!-- TEACHER THINKING EFFORT -->
+          <div class="sidebar-block">
+            <div class="block-label-row">
+              <label class="block-label">Teacher Reasoning</label>
+              <span class="think-level-label" id="arena-think-level-label">High Effort</span>
+            </div>
+            <div class="thinking-level-segmented" id="arena-thinking-levels">
+              <button class="t-level-btn" data-level="off">Off</button>
+              <button class="t-level-btn" data-level="low">Low</button>
+              <button class="t-level-btn" data-level="medium">Med</button>
+              <button class="t-level-btn active" data-level="high">High</button>
+              <button class="t-level-btn" data-level="max">Max</button>
+            </div>
+          </div>
+
+          <!-- CURRICULUM SELECTION -->
+          <div class="sidebar-block">
+            <label class="block-label">Curriculum / Arena Topic</label>
+            <select id="select-arena-curriculum" class="minimal-select">
+              <option value="architecture">🏛️ mini-AGI MoE Architecture & Continual Learning</option>
+              <option value="logic">🧩 Socratic Logic & Step Deduction</option>
+              <option value="conversation">💬 Conversational Fluency & Register</option>
+              <option value="adversarial">🛡️ Robustness & Anti-Hallucination</option>
+              <option value="custom">✏️ Custom Curriculum Objective...</option>
+            </select>
+            <div id="box-custom-curriculum" style="display: none; margin-top: 8px;">
+              <textarea id="arena-custom-curriculum-text" rows="3" class="minimal-textarea" 
+                        placeholder="Enter custom curriculum instructions for the Teacher..."></textarea>
+            </div>
+          </div>
+
+          <!-- LIVE STUDENT STATUS CARD -->
+          <div class="sidebar-block student-telemetry-card">
+            <div class="telemetry-card-head">
+              <div class="student-title">
+                <span class="pulse-dot active" id="student-pulse-dot"></span>
+                <span class="student-name">Student: mini-AGI</span>
+              </div>
+              <span class="student-status-badge" id="student-status-badge">Connected</span>
+            </div>
+            <div class="student-stats-grid">
+              <div class="s-stat">
+                <span class="s-stat-lbl">Endpoint</span>
+                <span class="s-stat-val mono-font">127.0.0.1:8080</span>
+              </div>
+              <div class="s-stat">
+                <span class="s-stat-lbl">Resident Slots</span>
+                <span class="s-stat-val mono-font" id="student-resident-slots">32 / 146</span>
+              </div>
+              <div class="s-stat">
+                <span class="s-stat-lbl">Live Backprop</span>
+                <span class="s-stat-val" id="student-learn-status">Active (512 chunk)</span>
+              </div>
+              <div class="s-stat">
+                <span class="s-stat-lbl">Pending Buffer</span>
+                <span class="s-stat-val mono-font" id="student-pending-chars">79 chars</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ARENA ROUND CONTROLS -->
+          <div class="sidebar-block">
+            <div class="param-row">
+              <div class="param-label-group">
+                <label for="range-arena-rounds">Session Rounds</label>
+                <span class="param-val" id="val-arena-rounds">3</span>
+              </div>
+              <input type="range" id="range-arena-rounds" min="1" max="10" step="1" value="3">
+            </div>
+
+            <div class="param-row">
+              <div class="param-label-group">
+                <label for="range-student-tokens">Student Max Chars</label>
+                <span class="param-val" id="val-student-tokens">250</span>
+              </div>
+              <input type="range" id="range-student-tokens" min="100" max="600" step="50" value="250">
+            </div>
+
+            <div class="param-row" style="margin-top: 10px;">
+              <label class="mini-checkbox">
+                <input type="checkbox" id="check-arena-autoplay" checked>
+                <span>Auto-Advance Rounds (Uncheck for Human Review)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- ARENA ACTIONS -->
+          <div class="sidebar-block arena-actions-block">
+            <button class="btn-run" id="btn-arena-start">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <span id="arena-start-text">Start Arena Session</span>
+            </button>
+            <div class="arena-sub-buttons" style="display: flex; gap: 6px; margin-top: 6px;">
+              <button class="raw-tool-btn" id="btn-arena-step" style="flex: 1;" title="Advance exactly one turn">
+                <span>Step 1 Turn</span>
+              </button>
+              <button class="raw-tool-btn" id="btn-arena-reset" style="flex: 1;" title="Clear and reset session">
+                <span>Reset</span>
+              </button>
+            </div>
+            <button class="btn-sync-save" id="btn-arena-save" style="margin-top: 8px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              <span>Save Arena to Datasets</span>
+            </button>
+          </div>
+        </div> <!-- end #sidebar-arena-view -->
+
+      </div>
+    </aside>
+
+    <!-- RIGHT/MAIN STUDIO AREA -->
+    <section class="main-studio" id="studio-main-view">
+      
+      <!-- SUB-HEADER BAR (TABS & STATS) -->
+      <div class="studio-subbar">
+        <div class="view-tabs">
+          <button class="v-tab active" id="tab-formatted">Conversation</button>
+          <button class="v-tab" id="tab-raw">Raw XML</button>
+          <button class="v-tab" id="tab-thinking" style="display: none;">Reasoning Trace</button>
+        </div>
+
+        <div class="stats-pills">
+          <span class="stat-tag" id="chip-chars">0 chars</span>
+          <span class="stat-tag" id="chip-turns">0 turns</span>
+          <span class="stat-tag" id="chip-time">0.0s</span>
+          <button class="icon-action-btn" id="btn-copy" title="Copy Raw XML">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+          <button class="icon-action-btn" id="btn-clear" title="Clear Canvas">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- CANVAS CONTENT AREA -->
+      <div class="canvas-viewport">
+        <!-- FORMATTED CONVERSATION VIEW -->
+        <div class="canvas-pane active" id="view-formatted">
+          <div class="empty-state" id="empty-state">
+            <div class="empty-logo">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+            </div>
+            <h3>Synthetic Dialogue Canvas</h3>
+            <p>Pick a provider, choose or type a model, and generate high-signal multi-turn conversations for mini-AGI.</p>
+          </div>
+          <div class="dialogue-flow" id="conversation-container"></div>
+        </div>
+
+        <!-- RAW TEXT VIEW WITH TOOLBAR -->
+        <div class="canvas-pane" id="view-raw" style="display: none;">
+          <div class="raw-toolbar">
+            <div class="raw-tools-left">
+              <button class="raw-tool-btn" id="btn-format-xml" title="Format XML spacing and tags">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+                <span>Format XML</span>
+              </button>
+              <button class="raw-tool-btn" id="btn-validate-xml" title="Check tag balance">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <span id="validate-tag-status">Validate Tags</span>
+              </button>
+            </div>
+            <div class="raw-tools-right">
+              <span class="raw-hint">Insert:</span>
+              <button class="raw-tag-btn" id="btn-insert-user">&lt;user&gt;</button>
+              <button class="raw-tag-btn" id="btn-insert-bot">&lt;bot&gt;</button>
+              <button class="raw-tag-btn" id="btn-insert-think">&lt;think&gt;</button>
+            </div>
+          </div>
+          <textarea id="raw-output-text" class="raw-editor" placeholder="Raw <user>...</user> and <bot>...</bot> tags will stream here... (Changes sync live with the Conversation view)"></textarea>
+        </div>
+
+        <!-- THINKING VIEW -->
+        <div class="canvas-pane" id="view-thinking" style="display: none;">
+          <div class="thinking-stream-container">
+            <div class="thinking-stream-head">
+              <span class="think-pill">🧠 DeepStep Reasoning Trace</span>
+              <span id="think-token-count">0 characters</span>
+            </div>
+            <pre class="think-stream-pre" id="think-code-content"></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTTOM PROMPT & GENERATION BAR -->
+      <div class="studio-bottom-bar">
+        <div class="prompt-bar-wrap">
+          <textarea id="prompt-input" rows="2" class="prompt-textarea" 
+                    placeholder="Enter topic or prompt instructions... (Press Ctrl+Enter to generate)"></textarea>
+          
+          <div class="prompt-controls">
+            <button class="btn-run" id="btn-generate">
+              <svg class="spin-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+              <span id="generate-btn-text">Generate</span>
+            </button>
+            <button class="btn-cancel" id="btn-stop" style="display: none;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+              <span>Stop</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ==================== 2. SPARRING ARENA MAIN VIEW ==================== -->
+    <section class="main-studio" id="arena-main-view" style="display: none;">
+      <!-- ARENA SUBBAR -->
+      <div class="studio-subbar">
+        <div class="arena-round-badge" id="arena-current-round-badge">
+          <span>Ready to Spar</span>
+        </div>
+        <div class="stats-pills">
+          <span class="stat-tag" id="chip-arena-rounds">0 / 3 rounds</span>
+          <span class="stat-tag" id="chip-arena-chars">0 chars</span>
+          <span class="stat-tag" id="chip-arena-speed">-- chars/s</span>
+          <span class="stat-tag" id="chip-arena-loss">Loss: --</span>
+          <button class="icon-action-btn" id="btn-arena-clear" title="Clear Arena Canvas">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ARENA CANVAS VIEWPORT -->
+      <div class="canvas-viewport">
+        <div class="arena-timeline-container" id="arena-timeline-container">
+          <div class="empty-state" id="arena-empty-state">
+            <div class="empty-logo arena-logo">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+            </div>
+            <h3>Teacher ⇄ Student Sparring Arena</h3>
+            <p>Connect a frontier Teacher model (DeepSeek, Claude 3.7, Gemini) to local mini-AGI. Watch them converse, critique each other, and trigger live online expert weight updates on disk.</p>
+          </div>
+          <div class="arena-stream-flow" id="arena-stream-flow"></div>
+        </div>
+      </div>
+
+      <!-- ARENA BOTTOM INTERVENTION BAR -->
+      <div class="studio-bottom-bar arena-bottom-bar">
+        <div class="prompt-bar-wrap">
+          <textarea id="arena-intervention-input" rows="2" class="prompt-textarea" 
+                    placeholder="Intervene in the arena: inject guidance, challenge questions, or coaching for the next turn..."></textarea>
+          <div class="prompt-controls">
+            <button class="btn-run" id="btn-arena-intervene">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              <span>Inject Turn</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- TOAST ALERTS -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

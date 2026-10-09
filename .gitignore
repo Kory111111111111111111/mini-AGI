@@ -16,6 +16,19 @@ __pycache__/
 data/
 runs/corpus_index.json
 
+# Local RunPod helpers (may contain API keys; keep out of git)
+tools/
+
+# Pod tarball and IDE state
+mini_agi_pod.tar
+.cursor/
+.freebuff/
+
 # secrets
 .env
 .env.*
+
+# Virtual environments
+.venv/
+venv/
+env/
